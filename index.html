@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>GPA計算機</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+        integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        body {
+            background-image: url('https://picsum.photos/1000/1000?image=1033');
+            background-size: cover;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <form class="text-white" id="gpaForm" onsubmit="calculatorGPA(event);">
+                    <h3>GPA計算機</h3>
+                    <div class="form-group">
+                        <label for="chineseScoreInput">國文成績</label>
+                        <input id="chineseScoreInput" type="number" min="0" max="100" placeholder="請在此輸入您的國文成績 0 ~ 100 "
+                            class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="englishScoreInput">英文成績</label>
+                        <input id="englishScoreInput" type="number" min="0" max="100" placeholder="請在此輸入您的英文成績 0 ~ 100 "
+                            class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="mathScoreInput">數學成績</label>
+                        <input id="mathScoreInput" type="number" min="0" max="100" placeholder="請在此輸入您的數學成績 0 ~ 100 "
+                            class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <button id="sendFormBtn" type="submit" class="btn btn-danger">計算GPA</button>
+                    </div>
+                    <p><small>平均分數大於或等於90分為A+，平均分數80~89分為A，平均分數70~79分為B，平均分數60~69分為C，平均分數低於60為F。</small></p>
+                    <div id="result"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- 引用Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
+    <script>
+        function getValueFromId(id) {
+            return document.getElementById(id).value;
+        }
+        function scoreBarColor(score) {
+            let color = score >= 60 ? "rgba(75, 192, 192, 1)" : "rgba(255, 99, 132, 1)";
+            // if (score >= 60) {
+            //     color = "rgba(75, 192, 192, 1)";
+            // } else {
+            //     color = "rgba(255, 99, 132, 1)";
+            // }
+            return color;
+        }
+
+        function calculatorGPA(event) {
+            // 防止瀏覽器表單預設會在送出時重整的行為
+            event.preventDefault();
+            // TODO: 取得國英數成績
+            let chineseScore = parseInt(getValueFromId("chineseScoreInput"));
+            let englishScore = parseInt(document.getElementById("englishScoreInput").value);
+            let mathScore = parseInt(document.getElementById("mathScoreInput").value);
+            // console.log(englishScore);
+            // console.log(mathScore);
+            // TODO: 計算出平均成績，四捨五入至個位數
+            let avgScore = Math.round((chineseScore + englishScore + mathScore) / 3);
+            // console.log(avgScore);
+            // TODO: 完成GPA計算機邏輯
+            // let gpa = "A+";
+            if (avgScore >= 90) {
+                gpa = "A+"
+                gpaColor = "success"
+
+            } else if (avgScore >= 80 && avgScore <= 90) {
+                gpa = "A";
+                gpaColor = "success"
+            } else if (avgScore >= 70 && avgScore <= 79) {
+                gpa = "B";
+                gpaColor = "primary"
+            } else if (avgScore >= 60 && avgScore <= 69) {
+                gpa = "C"
+                gpaColor = "warning"
+            } else {
+                gpa = "F"
+                gpaColor = "danger"
+            };
+            // console.log(`gpa:${gpa}`);
+            // TODO: 顯示成績報告於畫面上
+            //       使用Bootstrap .alert.alert-secondary樣式顯示成績表
+            let str = ` <div class="alert alert-secondary">
+                            <p>國文成績:${chineseScore}</p>
+                            <p>英文成績:${englishScore}</p>
+                            <p>數學成績:${mathScore}</p>
+                            <h4>總平均:${avgScore}</h4>
+                            <h2 class="text-right text-${gpaColor}">GPA:${gpa}</h2>
+                        </div>
+                        <canvas id="myChart"></canvas>
+                        `
+            document.getElementById("result").innerHTML = str;
+            // TODO: 使用Chart.js套件顯示圖表
+            const ctx = document.getElementById("myChart").getContext('2d');
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ["國文", "英文", "數學", "總平均"],
+                    datasets: [{
+                        label: '成績圖表',
+                        data: [chineseScore, englishScore, mathScore, avgScore],
+                        backgroundColor: [
+                            scoreBarColor(chineseScore),
+                            scoreBarColor(englishScore),
+                            scoreBarColor(mathScore),
+                            scoreBarColor(avgScore)
+
+                        ]
+                    }]
+                },
+                options: {
+                    scales: {
+                        xAxes: [{
+                            gridLines: {
+                                show: true,
+                                color: "#caccd1",
+                            }
+                        }],
+                        yAxes: [{
+                            gridLines: {
+                                show: true,
+                                color: "caccd1",
+                            },
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }],
+                    }
+                }
+            });
+        }
+        Chart.defaults.global.defaultFontColor = '#fff';
+    </script>
+</body>
+
+</html>
